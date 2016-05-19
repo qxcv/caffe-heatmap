@@ -5,10 +5,18 @@
 
 % Options
 
-opt.visualise = true;		% Visualise predictions?
+opt.visualise = false;		% Visualise predictions?
 opt.useGPU = true; 			% Run on GPU
 opt.dims = [256 256]; 		% Input dimensions (needs to match matlab.txt)
 opt.numJoints = 7; 			% Number of joints
+% Here are the joints (in order):
+% 1) Nose
+% 2) Right wrist
+% 3) Left wrist
+% 4) Right elbow
+% 5) Left elbow
+% 6) Right shoulder
+% 7) Left shoulder
 opt.layerName = 'conv5_fusion'; % Output layer name
 opt.modelDefFile = '../../models/heatmap-flic-fusion/matlab.prototxt'; % Model definition
 opt.modelFile = '../../models/heatmap-flic-fusion/caffe-heatmap-flic.caffemodel'; % Model weights
