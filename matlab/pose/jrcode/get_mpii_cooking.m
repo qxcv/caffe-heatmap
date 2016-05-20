@@ -1,4 +1,4 @@
-function test_seqs = get_mpii_cooking(dest_dir, cache_dir, trans_spec)
+function test_seqs = get_mpii_cooking(cache_dir)
 %GET_MPII_COOKING Fetches continuous pose estimation data from MPII
 % train_dataset and val_dataset both come from MPII Cooking's continuous
 % pose dataset, with val_dataset scraped from a couple of scenes at the
@@ -8,12 +8,12 @@ function test_seqs = get_mpii_cooking(dest_dir, cache_dir, trans_spec)
 % (which I believe was derived from the same source video as the pose
 % challenge *after* Cooking Activities was released).
 MPII_POSE_URL = 'http://datasets.d2.mpi-inf.mpg.de/MPIICookingActivities/poseChallenge-1.1.zip';
-POSE_DEST_PATH = fullfile(dest_dir, 'mpii-cooking-pose-challenge');
+POSE_DEST_PATH = fullfile(cache_dir, 'mpii-cooking-pose-challenge');
 POSE_CACHE_PATH = fullfile(cache_dir, 'poseChallenge-1.1.zip');
 VAL_FRAME_SKIP = 0;
 DUMP_THRESH = 50; % Set in main repo (joint-regressor.git)
 
-data_path = fullfile(cache_dir, 'mpii_data_piwcompat.mat');
+data_path = fullfile(cache_dir, 'mpii_data.mat');
 if exist(data_path, 'file')
     fprintf('Found existing data, so I''ll just use that\n');
     load(data_path, 'test_seqs');
@@ -34,7 +34,7 @@ if ~exist(POSE_DEST_PATH, 'dir')
     unzip(POSE_CACHE_PATH, POSE_DEST_PATH);
 end
 
-test_data = load_files_basic(POSE_DEST_PATH, trans_spec);
+test_data = load_files_basic(POSE_DEST_PATH);
 test_data = split_mpii_scenes(test_data, 0.1);
 test_pairs = find_pairs(test_data, VAL_FRAME_SKIP, DUMP_THRESH);
 test_dataset = unify_dataset(test_data, test_pairs, 'test_dataset_mpii_base');
@@ -49,7 +49,7 @@ test_seqs = make_test_set(test_dataset, all_test_seqs);
 save(data_path, 'test_seqs');
 end
 
-function basic_data = load_files_basic(dest_path, trans_spec)
+function basic_data = load_files_basic(dest_path)
 pose_dir = fullfile(dest_path, 'data', 'train_data', 'gt_poses');
 pose_fns = dir(pose_dir);
 pose_fns = pose_fns(3:end);
@@ -62,7 +62,7 @@ for fn_idx=1:length(pose_fns)
     basic_data(fn_idx).image_path = fullfile(dest_path, 'data', 'train_data', 'images', file_name);
     loaded = load(fullfile(pose_dir, data_fn), 'pose');
     basic_data(fn_idx).orig_joint_locs = loaded.pose;
-    basic_data(fn_idx).joint_locs = skeltrans(loaded.pose, trans_spec);
+    basic_data(fn_idx).joint_locs = loaded.pose;
     basic_data(fn_idx).is_val = true;
 end
 basic_data = sort_by_frame(basic_data);

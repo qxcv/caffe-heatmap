@@ -6,7 +6,7 @@ for seq_idx=1:num_seqs
     seq_trans = trans_rec{seq_idx};
     num_frames = length(seq_trans);
     seq_preds = cell([1 num_frames]);
-    for frame_idx=num_frames
+    for frame_idx=1:num_frames
         frame_trans = seq_trans(frame_idx);
         pred = joints(:, :, frame_trans.frame_num)';
         assert(ismatrix(pred) && size(pred, 2) == 2);

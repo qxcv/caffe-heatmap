@@ -1,4 +1,4 @@
-function [files, trans_rec] = prepare_test_seqs(test_seqs, dim, cache_dir)
+function [files, trans_rec] = prepare_test_seqs(test_seqs, dim, cache_dir, vstrat)
 %PREPARE_TEST_SEQS Prepare test image sequence for flowing convnet code
 result_dir = fullfile(cache_dir, 'frames/');
 mkdir_p(result_dir);
@@ -29,10 +29,20 @@ for seq_idx=1:length(test_seqs.seqs)
         % Order should be "x, y, w, h"
         this_bbox = [bounds(1) - pad_amount(1), seq_bbox(2), ...
             bounds(3) + 2 * pad_amount(1), seq_bbox(4)];
-        this_bbox(2) = 1;
-        this_bbox(4) = 320;
-        % fprintf('seq %i, frame %i\n', seq_idx, frame_idx);
-        % disp(this_bbox);
+        
+        % vstrat specifies a strategy for vertical cropping; horizontal
+        % cropping is always based on joint location and is unaffected by
+        % vstrat.
+        if strcmp(vstrat, 'fullHeight')
+            % We crop so that the entire vertical range of the frame is
+            % included
+            this_bbox(2) = 1;
+            this_bbox(4) = size(readim(datum), 1);
+        else
+            % Only crop so that maximum vertical extent of pose across
+            % sequence (plus some padding) is included
+            assert(strcmp(vstrat, 'seqHeight'), 'vstrat must be fullHeight or seqHeight');
+        end
         
         % Where to write frame
         frame_num = length(files) + 1;
