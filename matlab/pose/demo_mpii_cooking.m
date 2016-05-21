@@ -7,6 +7,8 @@
 %% Options
 
 opt.visualise = false;		% Visualise predictions?
+opt.headless_visualise = true;
+opt.visualise_path = 'mpii-vis/';
 opt.useGPU = true; 			% Run on GPU
 opt.dim = 256;
 opt.dims = [opt.dim, opt.dim]; 		% Input dimensions (needs to match matlab.txt)
@@ -48,3 +50,19 @@ results = cellfun(seq_transback, raw_results, 'UniformOutput', false);
 mkdir_p(opt.result_dir);
 save(fullfile(opt.result_dir, 'flow-convnets-mpii.mat'), ...
     'results', 'raw_results', 'test_seqs');
+
+if opt.headless_visualise
+    figure('Visible', 'off');
+    axes('Visible', 'off');
+    mkdir_p(opt.visualise_path);
+    for fp_idx=1:length(files)
+        fn = files{fp_idx};
+        imagesc(imread(fn));
+        hold on;
+        plotSkeleton(joints(:, :, fp_idx), [], []);
+        hold off;
+        result_path = fullfile(opt.visualise_path, sprintf('frame-%i.jpg', fp_idx));
+        fprintf('Writing to %s\n', result_path);
+        print(gcf, '-djpeg', result_path, '-r 150');
+    end
+end

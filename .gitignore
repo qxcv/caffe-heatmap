@@ -1,5 +1,8 @@
 ## General
 
+# Visualisation
+*-vis/
+
 # Compiled Object files
 *.slo
 *.lo
